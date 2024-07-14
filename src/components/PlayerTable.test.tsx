@@ -52,18 +52,18 @@ describe('PlayerTable', () => {
     expect(span).toHaveTextContent('New Name');
   });
 
-  test('edits a player participation count', async () => {
+  test('edits a player played count', async () => {
     const dom = render(<PlayerTable />);
-    const participationCell = await waitFor(() => dom.container.querySelector('#edit-player-participationCount-1') as HTMLElement);
-    expect(participationCell).toBeInTheDocument();
-    fireEvent.click(participationCell);
+    const playedCell = await waitFor(() => dom.container.querySelector('#edit-player-playedCount-1') as HTMLElement);
+    expect(playedCell).toBeInTheDocument();
+    fireEvent.click(playedCell);
 
-    // player-participationCount-1の取得を待つ
-    const input = await waitFor(() => dom.container.querySelector('#player-participationCount-1') as HTMLInputElement);
+    // player-playedCount-1の取得を待つ
+    const input = await waitFor(() => dom.container.querySelector('#player-playedCount-1') as HTMLInputElement);
 
     fireEvent.change(input, { target: { value: '5' } });
     fireEvent.blur(input);
-    const span = await waitFor(() => dom.container.querySelector('#edit-player-participationCount-1') as HTMLElement);
+    const span = await waitFor(() => dom.container.querySelector('#edit-player-playedCount-1') as HTMLElement);
     expect(span).toHaveTextContent('5');
   });
 });
