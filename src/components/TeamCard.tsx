@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Button, TextField, Box, Container, Card, CardContent, Grid, Typography, Stack, CardHeader, CardActions, IconButton, Menu, MenuItem } from '@mui/material';
+import { Button, TextField, Box, Container, Card, CardContent, Divider, Grid, Typography, Stack, CardHeader, CardActions, IconButton, Menu, MenuItem } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import UndoIcon from '@mui/icons-material/Undo';
 import { Player, Team, Result } from '../types/types';
 import PlayerCard from './PlayerCard';
 import { usePlayerListContext } from '../context/PlayerListContext';
@@ -55,7 +57,7 @@ const TeamCard = ({team}: {team: Team}) => {
     };
 
     return (
-      <Card>
+      <Card variant="outlined">
         <CardHeader
           title={`Team ${team.id}`}
           action={
@@ -69,7 +71,10 @@ const TeamCard = ({team}: {team: Team}) => {
                 open={open}
                 onClose={handleMenuClose}
                 >
-                <MenuItem onClick={() => splitByPlayerCount()}>
+                <MenuItem disableRipple>
+                <IconButton onClick={() => splitByPlayerCount()}>
+                    <PlayArrowIcon />
+                  </IconButton>
                   <TextField
                     type="number"
                     value={playerCount}
@@ -80,19 +85,23 @@ const TeamCard = ({team}: {team: Team}) => {
                   人ずつ分ける
                 </MenuItem>
 
-                <MenuItem onClick={() => splitByTeamCount()}>
+                <MenuItem disableRipple>
+                  <IconButton onClick={() => splitByTeamCount()}>
+                    <PlayArrowIcon />
+                  </IconButton>
                   <TextField
-                      type="number"
-                      value={teamCount}
-                      onChange={(e) => setTeamCount(parseInt(e.target.value))}
-                      size="small"
-                      sx={{ marginLeft: 1, width: '60px' }}
-                    />
-                     チームに分ける
-                  </MenuItem>
+                    type="number"
+                    value={teamCount}
+                    onChange={(e) => setTeamCount(parseInt(e.target.value))}
+                    size="small"
+                    sx={{ marginLeft: 1, width: '60px' }}
+                  />
+                  チームに分ける
+                </MenuItem>
               </Menu>
             </>
           }/>
+        <Divider />
         <CardContent>
           <Stack direction="row" spacing={2} flexWrap="wrap" justifyContent="center" alignItems="center" useFlexGap>
             {
@@ -145,10 +154,16 @@ const TeamCard = ({team}: {team: Team}) => {
                 open={open}
                 onClose={handleMenuClose}
                 >
-                <MenuItem onClick={() => revert()}>やり直す</MenuItem>
+                <MenuItem disableRipple onClick={() => revert()}>
+                  <IconButton>
+                    <UndoIcon />
+                  </IconButton>
+                  やり直す
+                </MenuItem>
               </Menu>
             </>
           }/>
+        <Divider />
         <CardContent>
           <Stack direction="row" spacing={5}>
             {
