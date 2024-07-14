@@ -71,7 +71,7 @@ const TeamCard = ({team}: {team: Team}) => {
     return (
       <Card variant="outlined" sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <CardHeader
-          title={`Team ${team.id}`}
+          title={team.name}
           action={
             team.children.length === 1 ? null :
             <>
@@ -116,13 +116,21 @@ const TeamCard = ({team}: {team: Team}) => {
         <Divider />
         <CardContent
           sx={{
+            flex: 1, // CardContentをCard全体に広げる
             display: 'flex', // 子要素を配置するためにflexを使用
             alignItems: 'center', // 子要素を中央に配置
             justifyContent: 'center', // 子要素を中央に配置
           }}
         >
           <DroppablePlayerArea onDrop={addPlayer}>
-            <Stack direction="row" spacing={2} flexWrap="wrap" justifyContent="center" alignItems="center" useFlexGap>
+            <Stack
+              direction="row" 
+              spacing={2}
+              flexWrap="wrap"
+              justifyContent="center"
+              alignItems="center"
+              useFlexGap
+            >
               {
                 (team.children as Player[]).map((player: Player) => (
                   <DraggablePlayerCard key={player.id} player={player} dropCallback={removePlayer} />
@@ -161,9 +169,9 @@ const TeamCard = ({team}: {team: Team}) => {
     };
 
     return (
-      <Card>
+      <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <CardHeader
-          title={`Team ${team.id}`}
+          title={team.name}
           action={
             <>
               <IconButton aria-label="settings" onClick={handleMenuClick}>
@@ -184,7 +192,7 @@ const TeamCard = ({team}: {team: Team}) => {
             </>
           }/>
         <Divider />
-        <CardContent>
+        <CardContent sx={{ flex: 1 }}>
           <Stack direction="row" spacing={5}>
             {
               (team.children as Team[]).map((subTeam: Team) => (

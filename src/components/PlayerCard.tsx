@@ -18,8 +18,9 @@ const PlayerCard = ({ player }: { player: Player }) => (
       cursor: 'grabbing', // ドラッグ時のカーソル
     }, 
   }}>
-    <Typography>{player.name}</Typography>
+    <Typography variant="h4">{player.name}</Typography>
   </Card>
 );
+
 
 export default PlayerCard;

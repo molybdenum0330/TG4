@@ -5,7 +5,7 @@ import Content from './Content';
 
 const initialPlayerList: Player[] = Array.from({ length: 30 }, (_, index) => ({
   id: index + 1,
-  name: `プレイヤー${index + 1}`,
+  name: `${index + 1}`,
   playedCount: 0,
 }))
 
