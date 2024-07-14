@@ -6,6 +6,8 @@ import DraggablePlayerCard from './DraggablePlayerCard';
 import DroppablePlayerArea from './DroppablePlayerArea';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { MultiBackend, TouchTransition } from 'react-dnd-multi-backend';
+import { TouchBackend } from 'react-dnd-touch-backend';
 
 
 const ResultBox = ({ result }: { result: Result }) => {
@@ -28,7 +30,21 @@ const ResultBox = ({ result }: { result: Result }) => {
   };
 
   return (
-    <DndProvider backend={HTML5Backend}>
+    <DndProvider
+      backend={MultiBackend}
+      options={{
+        backends: [
+          {
+            backend: HTML5Backend,
+          },
+          {
+            backend: TouchBackend,
+            options: { enableMouseEvents: true },
+            preview: true,
+            transition: TouchTransition,
+          },
+        ],
+      }}>
       <Card variant="outlined">
         <CardContent>
           <Stack spacing={2}>
