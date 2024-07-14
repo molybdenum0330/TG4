@@ -2,38 +2,11 @@ import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, CardHeader, Divider, Grid, Stack, Typography, } from '@mui/material';
 import { Player, Result, Team } from '../types/types';
 import TeamCard from './TeamCard';
-import PlayerCard from './PlayerCard';
+import DraggablePlayerCard from './DraggablePlayerCard';
+import DroppablePlayerArea from './DroppablePlayerArea';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-const ItemTypes = {
-  PLAYER: 'player',
-};
-
-const DraggablePlayerCard = ({ player, movePlayer }) => {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: ItemTypes.PLAYER,
-    item: { player },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  }));
-
-  return (
-    <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }}>
-      <PlayerCard player={player} />
-    </div>
-  );
-};
-
-const DroppableArea = ({ children, onDrop }) => {
-  const [, drop] = useDrop(() => ({
-    accept: ItemTypes.PLAYER,
-    drop: (item) => onDrop(item.player),
-  }));
-
-  return <div ref={drop}>{children}</div>;
-};
 
 const ResultBox = ({ result }: { result: Result }) => {
   const [confirmed, setConfirmed] = useState(result.confirmed);
@@ -46,23 +19,12 @@ const ResultBox = ({ result }: { result: Result }) => {
     result.confirmed = confirmed;
   }, [teams, remainedPlayers, confirmed]);
 
-  const movePlayerToTeam = (player, teamId) => {
-    setRemainedPlayers((prev) => prev.filter((p) => p.id !== player.id));
-    setTeams((prev) =>
-      prev.map((team) =>
-        team.id === teamId ? { ...team, players: [...team.players, player] } : team
-      )
-    );
+  const addPlayerToRemained = (player: Player) => {
+    setRemainedPlayers((prev) => [...prev, player]);
   };
 
-  const movePlayerToRemained = (player) => {
-    setTeams((prev) =>
-      prev.map((team) => ({
-        ...team,
-        players: team.players.filter((p) => p.id !== player.id),
-      }))
-    );
-    setRemainedPlayers((prev) => [...prev, player]);
+  const removePlayerFromRemained = (player: Player) => {
+    setRemainedPlayers((prev) => prev.filter((p) => p.id !== player.id));
   };
 
   return (
@@ -72,25 +34,25 @@ const ResultBox = ({ result }: { result: Result }) => {
           <Stack spacing={2}>
             {teams.map((team) => (
               <Grid item xs key={team.id}>
-                <DroppableArea onDrop={(player) => movePlayerToTeam(player, team.id)}>
-                  <TeamCard team={team} />
-                  {team.players.map((player) => (
-                    <DraggablePlayerCard key={player.id} player={player} movePlayer={movePlayerToTeam} />
-                  ))}
-                </DroppableArea>
+                <TeamCard team={team} />
               </Grid>
             ))}
             <Card variant="outlined">
               <CardHeader title="不参加" />
               <Divider />
-              <CardContent>
-                <DroppableArea onDrop={movePlayerToRemained}>
+              <CardContent 
+                sx={{
+                  display: 'flex', // 子要素を配置するためにflexを使用
+                  alignItems: 'center', // 子要素を中央に配置
+                  justifyContent: 'center', // 子要素を中央に配置
+                }}>
+                <DroppablePlayerArea onDrop={addPlayerToRemained}>
                   <Stack spacing={2} direction="row" useFlexGap flexWrap="wrap">
                     {remainedPlayers.map((player) => (
-                      <DraggablePlayerCard key={player.id} player={player} movePlayer={movePlayerToRemained} />
+                      <DraggablePlayerCard key={player.id} player={player} dropCallback={removePlayerFromRemained} />
                     ))}
                   </Stack>
-                </DroppableArea>
+                </DroppablePlayerArea>
               </CardContent>
             </Card>
             {confirmed ? (

@@ -4,7 +4,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import UndoIcon from '@mui/icons-material/Undo';
 import { Player, Team, Result } from '../types/types';
-import PlayerCard from './PlayerCard';
+import DraggablePlayerCard from './DraggablePlayerCard';
+import DroppablePlayerArea from './DroppablePlayerArea';
 import { usePlayerListContext } from '../context/PlayerListContext';
 
 const TeamCard = ({team}: {team: Team}) => {
@@ -56,8 +57,19 @@ const TeamCard = ({team}: {team: Team}) => {
       });
     };
 
+    const addPlayer = (player: Player) => {
+      (team.children as Player[]).push(player);
+      setTeams([...teams]);
+    };
+  
+    const removePlayer = (player: Player) => {
+      team.children = (team.children as Player[]).filter((p) => p.id !== player.id);
+      setTeams([...teams]);
+    };
+  
+
     return (
-      <Card variant="outlined">
+      <Card variant="outlined" sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <CardHeader
           title={`Team ${team.id}`}
           action={
@@ -102,14 +114,22 @@ const TeamCard = ({team}: {team: Team}) => {
             </>
           }/>
         <Divider />
-        <CardContent>
-          <Stack direction="row" spacing={2} flexWrap="wrap" justifyContent="center" alignItems="center" useFlexGap>
-            {
-              (team.children as Player[]).map((player: Player) => (
-                <PlayerCard  key={(player).id}  player={player} />
-              ))
-            }
-          </Stack>
+        <CardContent
+          sx={{
+            display: 'flex', // 子要素を配置するためにflexを使用
+            alignItems: 'center', // 子要素を中央に配置
+            justifyContent: 'center', // 子要素を中央に配置
+          }}
+        >
+          <DroppablePlayerArea onDrop={addPlayer}>
+            <Stack direction="row" spacing={2} flexWrap="wrap" justifyContent="center" alignItems="center" useFlexGap>
+              {
+                (team.children as Player[]).map((player: Player) => (
+                  <DraggablePlayerCard key={player.id} player={player} dropCallback={removePlayer} />
+                ))
+              }
+            </Stack>
+          </DroppablePlayerArea>
         </CardContent>
       </Card>
     );

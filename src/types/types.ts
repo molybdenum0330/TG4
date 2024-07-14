@@ -24,3 +24,7 @@ export interface Team {
   children: Team[] | Player[];
   childrenType: 'Team' | 'Player';
 }
+
+export const DroppableTypes = {
+  PLAYER: 'player',
+};
