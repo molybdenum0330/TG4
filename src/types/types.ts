@@ -3,3 +3,9 @@ export interface Player {
   name: string;
   participationCount: number;
 }
+
+export interface Team {
+  id: number;
+  children: Team[] | Player[];
+  childrenType: 'Team' | 'Player';
+}
