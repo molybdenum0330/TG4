@@ -2,6 +2,7 @@ import { useTheme, ThemeProvider } from "@emotion/react";
 import { createTheme, Drawer, Container, Grid, Stack, Typography, CssBaseline, Box, AppBar, Toolbar, IconButton, Button } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
+import AddIcon from '@mui/icons-material/Add';
 import { useState, useMemo, useEffect } from "react";
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -63,19 +64,19 @@ const Content = () => {
         }, [resultList]);
 
         return (
-          <Stack direction="column" useFlexGap flexWrap="wrap">
-          <Box>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h4">{tgEvent.name}</Typography>
-              <Button variant="contained" color="primary" onClick={createNewResult}>
-                新しいチーム分けを作る
-              </Button>
-            </div>
-          </Box>
+          <Stack direction="column" useFlexGap flexWrap="wrap" gap={2}>
+            <Box>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="h4">{tgEvent.name}</Typography>
+                <IconButton onClick={createNewResult}>
+                  <AddIcon />
+                </IconButton>
+              </div>
+            </Box>
               <DndProvider backend={HTML5Backend}>
-          {resultList.map((result) => <ResultBox key={result.id} result={result} />)}
+                {resultList.map((result) => <ResultBox key={result.id} result={result} />)}
               </DndProvider>
-        </Stack>
+          </Stack>
         );
       }
 
@@ -114,7 +115,7 @@ const Content = () => {
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
       <CssBaseline />
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
+        <AppBar position="fixed">
           <Toolbar>
             <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleTGEventListDrawer(true)}>
               <MenuIcon />
@@ -128,6 +129,7 @@ const Content = () => {
             </IconButton>
           </Toolbar>
         </AppBar>
+        <Toolbar />
         <MainContent />
       </Box>
     </ThemeProvider>
