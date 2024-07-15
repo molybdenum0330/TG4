@@ -79,18 +79,15 @@ const Content = () => {
                 </IconButton>
               </div>
             </Box>
-              <DndProvider backend={HTML5Backend}>
-                {resultList.map((result) => <ResultBox key={result.id} result={result} updateTGEventView={updateTGEventView}/>)}
-              </DndProvider>
+            <DndProvider backend={HTML5Backend}>
+              {resultList.map((result) => <ResultBox key={result.id} result={result} updateTGEventView={updateTGEventView}/>)}
+            </DndProvider>
           </Stack>
         );
       }
 
-      return useMemo(() => (
+      return (
         <TGEventPlayerListProvider tgEvent={tgEvent}>
-          <Drawer anchor="right" open={playerListDrawerOpen} onClose={togglePlayerListDrawer(false)}>
-            <PlayerTable />
-          </Drawer>
           <Container>
             <Grid container spacing={3}>
               <Grid item xs={12}>
@@ -98,9 +95,10 @@ const Content = () => {
               </Grid>
             </Grid>
           </Container>
-        </TGEventPlayerListProvider>),
-        [tgEvent]
-     );
+          <Box sx={{ width: 300, right: 10, position: 'fixed', top: 100, height: '80%'}}>
+            <PlayerTable updateTGEventView={updateTGEventView}/>
+          </Box>
+        </TGEventPlayerListProvider>);
     };
   
     const MainContent = () => {
@@ -130,9 +128,6 @@ const Content = () => {
               TG4Event
             </Typography>
             <ThemeSwitch darkMode={darkMode} handleThemeChange={handleThemeChange} />
-            <IconButton edge="end" color="inherit" aria-label="player-list" onClick={togglePlayerListDrawer(true)}>
-              <PeopleIcon />
-            </IconButton>
           </Toolbar>
         </AppBar>
         <Toolbar />
