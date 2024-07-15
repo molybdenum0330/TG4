@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, Divider, IconButton, Menu, MenuItem, TextField, Stack } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { Player, Team } from '../types/types';
+import { Player, Team, sortPlayer } from '../types/types';
 import DraggablePlayerCard from './DraggablePlayerCard';
 import DroppablePlayerArea from './DroppablePlayerArea';
 
@@ -34,9 +34,9 @@ const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispat
       const newTeams: Team[] = [];
       shuffledPlayers.forEach((player, index) => {
         if (newTeams.length === 0 || newTeams[newTeams.length - 1].children.length >= playerCount) {
-          newTeams.push({ id: index + 1, name: `チーム${index + 1}`, children: [] as Player[], childrenType: 'Player' });
+          newTeams.push({ id: newTeams.length + 1, name: `チーム${newTeams.length + 1}`, children: [] as Player[], childrenType: 'Player' });
         }
-        (newTeams[newTeams.length - 1].children as Player[]).push(player);
+        newTeams[newTeams.length - 1].children = sortPlayer([...newTeams[newTeams.length - 1].children as Player[], player]);
       });
       return newTeams;
     })
@@ -48,12 +48,16 @@ const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispat
       shuffledPlayers.forEach((player, index) => {
         (newTeams[index % teamCount].children as Player[]).push(player);
       });
+
+      newTeams.forEach((team) => {
+        team.children = sortPlayer(team.children as Player[]);
+      });
       return newTeams;
     });
   };
 
   const addPlayer = (player: Player) => {
-    (team.children as Player[]).push(player);
+    team.children = sortPlayer([...team.children as Player[], player]);
     setTeams((prev) => [...prev]);
   };
 

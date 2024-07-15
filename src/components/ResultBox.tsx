@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, CardHeader, Divider, Grid, Stack, Typography, } from '@mui/material';
-import { Player, Result, Team } from '../types/types';
+import { Player, Result, Team, sortPlayer } from '../types/types';
 import TeamCard from './TeamCard';
 import DraggablePlayerCard from './DraggablePlayerCard';
 import DroppablePlayerArea from './DroppablePlayerArea';
@@ -22,7 +22,7 @@ const ResultBox = ({ result }: { result: Result }) => {
   }, [teams, remainedPlayers, confirmed]);
 
   const addPlayerToRemained = (player: Player) => {
-    setRemainedPlayers((prev) => [...prev, player]);
+    setRemainedPlayers((prev) => sortPlayer([...prev, player]));
   };
 
   const removePlayerFromRemained = (player: Player) => {

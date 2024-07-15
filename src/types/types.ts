@@ -28,3 +28,5 @@ export interface Team {
 export const DroppableTypes = {
   PLAYER: 'player',
 };
+
+export const sortPlayer = (players: Player[]) => players.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
