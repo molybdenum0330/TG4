@@ -38,7 +38,7 @@ const PlayerListCard = ({resultId, team, updateView }: { resultId: string, team:
       const newTeams: TeamHasPlayers[] = [];
       shuffledPlayers.forEach((player, index) => {
         if (newTeams.length === 0 || newTeams[newTeams.length - 1].children.length >= playerCount) {
-          newTeams.push({ id: uuidv4(), name: `チーム${newTeams.length + 1}`, children: [], childrenType: ChildrenTypes.PLAYER });
+          newTeams.push({ id: uuidv4(), name: `T${newTeams.length + 1}`, children: [], childrenType: ChildrenTypes.PLAYER });
         }
         newTeams[newTeams.length - 1].children = sortPlayer([...newTeams[newTeams.length - 1].children, player]);
       });

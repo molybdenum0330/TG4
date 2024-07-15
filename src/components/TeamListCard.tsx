@@ -55,8 +55,8 @@ const TeamListCard = ({ resultId, team, updateView }: { resultId: string, team: 
           </>
         }/>
       <Divider />
-      <CardContent sx={{ flex: 1 }}>
-        <Stack direction="row" spacing={5}>
+      <CardContent>
+        <Stack direction="row" flexWrap="wrap" flexGrow={1} gap={1}>
           {
             teamHasTeams.children.map((subTeam: Team) => (
               <TeamCard resultId={resultId} key={subTeam.id} team={subTeam} />

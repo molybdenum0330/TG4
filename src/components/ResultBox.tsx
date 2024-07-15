@@ -59,7 +59,7 @@ const ResultBox = ({ result }: { result: Result }) => {
           },
         ],
       }}>
-      <Card variant="outlined">
+      <Card variant="outlined" sx={{ maxWidth: '100%', margin: '0 auto' }}>
         <CardContent>
           <Stack spacing={2}>
             <TeamCard resultId={result.id} team={result.team} />
