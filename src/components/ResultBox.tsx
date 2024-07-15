@@ -4,10 +4,6 @@ import { Player, Result, Team, sortByName, sortPlayer } from '../types/types';
 import TeamCard from './TeamCard';
 import DraggablePlayerCard from './DraggablePlayerCard';
 import DroppablePlayerArea from './DroppablePlayerArea';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { MultiBackend, TouchTransition } from 'react-dnd-multi-backend';
-import { TouchBackend } from 'react-dnd-touch-backend';
 import PlayerCard from './PlayerCard';
 
 
@@ -43,59 +39,42 @@ const ResultBox = ({ result }: { result: Result }) => {
   const sortedPlayers = sortByName(players, (p) => p.player.name);
 
   return (
-    <DndProvider
-      key={result.id}
-      backend={MultiBackend}
-      options={{
-        backends: [
-          {
-            backend: HTML5Backend,
-          },
-          {
-            backend: TouchBackend,
-            options: { enableMouseEvents: true },
-            preview: true,
-            transition: TouchTransition,
-          },
-        ],
-      }}>
-      <Card variant="outlined" sx={{ maxWidth: '100%', margin: '0 auto' }}>
-        <CardContent>
-          <Stack spacing={2}>
-            <TeamCard resultId={result.id} team={result.team} />
-            <Card variant="outlined">
-              <CardHeader title="不参加" />
-              <Divider />
-              <CardContent
-                sx={{
-                  display: 'flex', // 子要素を配置するためにflexを使用
-                  alignItems: 'center', // 子要素を中央に配置
-                  justifyContent: 'center', // 子要素を中央に配置
-                }}>
-                <DroppablePlayerArea dndId={result.id} onDrop={addPlayer} onHover={onHoverPlayer}>
-                  <Stack spacing={2} direction="row" useFlexGap flexWrap="wrap">
-                    {sortedPlayers.map(({player, isPreview}) => (
-                      isPreview
-                        ? <div key={`${player.id}-preview`} style={{opacity: 0.5}}><PlayerCard player={player} /></div>
-                        : <DraggablePlayerCard dndId={result.id} key={player.id} player={player} dropCallback={removePlayer} />
-                    ))}
-                  </Stack>
-                </DroppablePlayerArea>
-              </CardContent>
-            </Card>
-            {confirmed ? (
-              <Button variant="contained" color="secondary" onClick={() => setConfirmed(false)}>
-                編集
-              </Button>
-            ) : (
-              <Button variant="contained" color="secondary" onClick={() => setConfirmed(true)}>
-                確定
-              </Button>
-            )}
-          </Stack>
-        </CardContent>
-      </Card>
-    </DndProvider>
+    <Card variant="outlined" sx={{ maxWidth: '100%', margin: '0 auto' }}>
+      <CardContent>
+        <Stack spacing={2}>
+          <TeamCard resultId={result.id} team={result.team} />
+          <Card variant="outlined">
+            <CardHeader title="不参加" />
+            <Divider />
+            <CardContent
+              sx={{
+                display: 'flex', // 子要素を配置するためにflexを使用
+                alignItems: 'center', // 子要素を中央に配置
+                justifyContent: 'center', // 子要素を中央に配置
+              }}>
+              <DroppablePlayerArea dndId={result.id} onDrop={addPlayer} onHover={onHoverPlayer}>
+                <Stack spacing={2} direction="row" useFlexGap flexWrap="wrap">
+                  {sortedPlayers.map(({player, isPreview}) => (
+                    isPreview
+                      ? <div key={`${player.id}-preview`} style={{opacity: 0.5}}><PlayerCard player={player} /></div>
+                      : <DraggablePlayerCard dndId={result.id} key={player.id} player={player} dropCallback={removePlayer} />
+                  ))}
+                </Stack>
+              </DroppablePlayerArea>
+            </CardContent>
+          </Card>
+          {confirmed ? (
+            <Button variant="contained" color="secondary" onClick={() => setConfirmed(false)}>
+              編集
+            </Button>
+          ) : (
+            <Button variant="contained" color="secondary" onClick={() => setConfirmed(true)}>
+              確定
+            </Button>
+          )}
+        </Stack>
+      </CardContent>
+    </Card>
   );
 };
 

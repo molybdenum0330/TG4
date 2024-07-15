@@ -3,7 +3,10 @@ import { createTheme, Drawer, Container, Grid, Stack, Typography, CssBaseline, B
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
 import { useState, useMemo, useEffect } from "react";
-import { v4 as uuidv4 } from 'uuid';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { MultiBackend, TouchTransition } from 'react-dnd-multi-backend';
+import { TouchBackend } from 'react-dnd-touch-backend';
 
 import PlayerTable from "./components/PlayerTable";
 import ResultBox from "./components/ResultBox";
@@ -69,7 +72,9 @@ const Content = () => {
               </Button>
             </div>
           </Box>
+              <DndProvider backend={HTML5Backend}>
           {resultList.map((result) => <ResultBox key={result.id} result={result} />)}
+              </DndProvider>
         </Stack>
         );
       }
