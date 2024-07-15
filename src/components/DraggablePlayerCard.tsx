@@ -1,8 +1,8 @@
 import { useDrag } from "react-dnd";
-import { Player, DroppableTypes } from "../types/types";
+import { PlayerDropItem, DroppableTypes } from "../types/types";
 import PlayerCard from "./PlayerCard";
 
-const DraggablePlayerCard = ({ player, dropCallback }: { player: Player; dropCallback: (player: Player) => void }) => {
+const DraggablePlayerCard = ({ player, dropCallback }: PlayerDropItem) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: DroppableTypes.PLAYER,
     item: { player, dropCallback },

@@ -29,4 +29,10 @@ export const DroppableTypes = {
   PLAYER: 'player',
 };
 
-export const sortPlayer = (players: Player[]) => players.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+export type PlayerDropItem = {
+  player: Player;
+  dropCallback: (player: Player) => void
+}
+
+export const sortPlayer = (players: Player[]) => sortByName(players, (player) => player.name);
+export const sortByName = <T>(target: T[], nameGetter: (item: T) => string) => target.sort((a, b) => nameGetter(a).localeCompare(nameGetter(b), undefined, {numeric: true}));

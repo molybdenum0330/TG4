@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Box, Button, Card, CardContent, CardHeader, Divider, Grid, Stack, Typography, } from '@mui/material';
-import { Player, Result, Team, sortPlayer } from '../types/types';
+import { Player, Result, Team, sortByName, sortPlayer } from '../types/types';
 import TeamCard from './TeamCard';
 import DraggablePlayerCard from './DraggablePlayerCard';
 import DroppablePlayerArea from './DroppablePlayerArea';
@@ -8,12 +8,14 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { MultiBackend, TouchTransition } from 'react-dnd-multi-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
+import PlayerCard from './PlayerCard';
 
 
 const ResultBox = ({ result }: { result: Result }) => {
   const [confirmed, setConfirmed] = useState(result.confirmed);
   const [teams, setTeams] = useState<Team[]>(result.teams);
   const [remainedPlayers, setRemainedPlayers] = useState<Player[]>(result.remainedPlayers);
+  const [previewPlayer, setPreviewPlayer] = useState<Player | null>(null);
 
   useEffect(() => {
     result.teams = teams;
@@ -21,13 +23,26 @@ const ResultBox = ({ result }: { result: Result }) => {
     result.confirmed = confirmed;
   }, [teams, remainedPlayers, confirmed]);
 
-  const addPlayerToRemained = (player: Player) => {
+  const addPlayer = (player: Player) => {
     setRemainedPlayers((prev) => sortPlayer([...prev, player]));
   };
 
-  const removePlayerFromRemained = (player: Player) => {
+  const removePlayer = (player: Player) => {
     setRemainedPlayers((prev) => prev.filter((p) => p.id !== player.id));
   };
+
+  const onHoverPlayer = (player: Player, isOver: boolean) => {
+    if (isOver) {
+      setPreviewPlayer(player);
+    } else {
+      setPreviewPlayer(null);
+    }
+  };
+
+  const players = remainedPlayers.map(p => ({ player: p, isPreview: false }))
+  previewPlayer && !remainedPlayers.includes(previewPlayer) && players.push({ player: previewPlayer, isPreview: true })
+
+  const sortedPlayers = sortByName(players, (p) => p.player.name);
 
   return (
     <DndProvider
@@ -56,16 +71,18 @@ const ResultBox = ({ result }: { result: Result }) => {
             <Card variant="outlined">
               <CardHeader title="不参加" />
               <Divider />
-              <CardContent 
+              <CardContent
                 sx={{
                   display: 'flex', // 子要素を配置するためにflexを使用
                   alignItems: 'center', // 子要素を中央に配置
                   justifyContent: 'center', // 子要素を中央に配置
                 }}>
-                <DroppablePlayerArea onDrop={addPlayerToRemained}>
+                <DroppablePlayerArea onDrop={addPlayer} onHover={onHoverPlayer}>
                   <Stack spacing={2} direction="row" useFlexGap flexWrap="wrap">
-                    {remainedPlayers.map((player) => (
-                      <DraggablePlayerCard key={player.id} player={player} dropCallback={removePlayerFromRemained} />
+                    {sortedPlayers.map(({player, isPreview}) => (
+                      isPreview
+                        ? <div style={{opacity: 0.5}}><PlayerCard key={`${player.id}-preview`} player={player} /></div>
+                        : <DraggablePlayerCard key={player.id} player={player} dropCallback={removePlayer} />
                     ))}
                   </Stack>
                 </DroppablePlayerArea>

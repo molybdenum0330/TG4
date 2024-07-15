@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, Divider, IconButton, Menu, MenuItem, TextField, Stack } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { Player, Team, sortPlayer } from '../types/types';
+import { Player, Team, sortByName, sortPlayer } from '../types/types';
 import DraggablePlayerCard from './DraggablePlayerCard';
 import DroppablePlayerArea from './DroppablePlayerArea';
+import PlayerCard from './PlayerCard';
 
 const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispatch<React.SetStateAction<Team[]>> }) => {
   const [teamCount, setTeamCount] = useState<number>(2);
   const [playerCount, setPlayerCount] = useState<number>(4);
+  const [previewPlayer, setPreviewPlayer] = useState<Player | null>(null);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -66,6 +68,19 @@ const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispat
     setTeams((prev) => [...prev]);
   };
 
+  const onHoverPlayer = (player: Player, isOver: boolean) => {
+    if (player && isOver) {
+      setPreviewPlayer(player);
+    } else {
+      setPreviewPlayer(null);
+    }
+  };
+
+  const players = (team.children as Player[]).map(p => ({ player: p, isPreview: false }))
+  previewPlayer && !(team.children as Player[]).includes(previewPlayer) && players.push({ player: previewPlayer, isPreview: true })
+
+  const sortedPlayers = sortByName(players, (p) => p.player.name);
+
   return (
     <Card variant="outlined" sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <CardHeader
@@ -120,7 +135,7 @@ const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispat
           justifyContent: 'center', // 子要素を中央に配置
         }}
       >
-        <DroppablePlayerArea onDrop={addPlayer}>
+        <DroppablePlayerArea onDrop={addPlayer} onHover={onHoverPlayer}>
           <Stack
             direction="row" 
             spacing={2}
@@ -130,8 +145,10 @@ const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispat
             useFlexGap
           >
             {
-              (team.children as Player[]).map((player: Player) => (
-                <DraggablePlayerCard key={player.id} player={player} dropCallback={removePlayer} />
+              sortedPlayers.map(({player, isPreview}) => (
+                isPreview
+                ? <div style={{opacity: 0.5}}><PlayerCard key={`${player.id}-preview`} player={player} /></div>
+                : <DraggablePlayerCard key={player.id} player={player} dropCallback={removePlayer} />
               ))
             }
           </Stack>
