@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { resourceLimits } from 'worker_threads';
 
 export const ChildrenTypes = {
   TEAM: 'Team',
@@ -58,6 +59,19 @@ export type PlayerDropItem = {
 export const createNewTGEvent = (name: string, playerList: Player[]) => ({id: uuidv4(), name: name, playerList: playerList, results: [createNewUncofirmedResult(playerList)]});
 export const createNewUncofirmedResult = (playerList: Player[]) => ({id: uuidv4(), team: createParticipatingTeam(playerList), remainedPlayers: [], confirmed: false});
 const createParticipatingTeam = (playerList: Player[]): TeamHasPlayers => ({id: uuidv4(), name: '参加', children: playerList, childrenType: ChildrenTypes.PLAYER});
+export const collectPlayers = (team: Team): Player[] =>
+  team.childrenType === ChildrenTypes.TEAM
+    ? (team.children).flatMap((team) => collectPlayers(team))
+    : (team.children);
+
+export const countPlayed = (tgEvent: TGEvent) => {
+  const players = tgEvent.playerList
+  players.forEach(p => p.playedCount = 0)
+  tgEvent.results
+    .filter(r => r.confirmed)
+    .forEach(result => collectPlayers(result.team).forEach(p => p.playedCount += 1))
+  return players
+};
 
 export const sortPlayer = (players: Player[]) => sortByName(players, (player) => player.name);
 export const sortByName = <T>(target: T[], nameGetter: (item: T) => string) => target.sort((a, b) => nameGetter(a).localeCompare(nameGetter(b), undefined, {numeric: true}));

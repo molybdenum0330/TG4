@@ -7,7 +7,7 @@ import DroppablePlayerArea from './DroppablePlayerArea';
 import PlayerCard from './PlayerCard';
 
 
-const ResultBox = ({ result }: { result: Result }) => {
+const ResultBox = ({ result, updateTGEventView }: { result: Result, updateTGEventView: () => void }) => {
   const [confirmed, setConfirmed] = useState(result.confirmed);
   const [remainedPlayers, setRemainedPlayers] = useState<Player[]>(result.remainedPlayers);
   const [previewPlayer, setPreviewPlayer] = useState<Player | null>(null);
@@ -25,6 +25,12 @@ const ResultBox = ({ result }: { result: Result }) => {
     setRemainedPlayers((prev) => prev.filter((p) => p.id !== player.id));
   };
 
+  const updateConfirmed = (confirmed: boolean) => {
+    result.confirmed = confirmed
+    setConfirmed(confirmed)
+    updateTGEventView()
+  };
+
   const onHoverPlayer = (player: Player, isOver: boolean) => {
     if (isOver) {
       setPreviewPlayer(player);
@@ -33,10 +39,10 @@ const ResultBox = ({ result }: { result: Result }) => {
     }
   };
 
-  const players = remainedPlayers.map(p => ({ player: p, isPreview: false }))
-  previewPlayer && !remainedPlayers.includes(previewPlayer) && players.push({ player: previewPlayer, isPreview: true })
+  const cardPlayers = remainedPlayers.map(p => ({ player: p, isPreview: false }))
+  previewPlayer && !remainedPlayers.includes(previewPlayer) && cardPlayers.push({ player: previewPlayer, isPreview: true })
 
-  const sortedPlayers = sortByName(players, (p) => p.player.name);
+  const sortedCardPlayers = sortByName(cardPlayers, (p) => p.player.name);
 
   return (
     <Card variant="outlined" sx={{ maxWidth: '100%', margin: '0 auto' }}>
@@ -54,7 +60,7 @@ const ResultBox = ({ result }: { result: Result }) => {
               }}>
               <DroppablePlayerArea dndId={result.id} onDrop={addPlayer} onHover={onHoverPlayer}>
                 <Stack spacing={2} direction="row" useFlexGap flexWrap="wrap">
-                  {sortedPlayers.map(({player, isPreview}) => (
+                  {sortedCardPlayers.map(({player, isPreview}) => (
                     isPreview
                       ? <div key={`${player.id}-preview`} style={{opacity: 0.5}}><PlayerCard player={player} /></div>
                       : <DraggablePlayerCard dndId={result.id} key={player.id} player={player} dropCallback={removePlayer} />
@@ -64,11 +70,11 @@ const ResultBox = ({ result }: { result: Result }) => {
             </CardContent>
           </Card>
           {confirmed ? (
-            <Button variant="contained" color="secondary" onClick={() => setConfirmed(false)}>
+            <Button variant="contained" color="secondary" onClick={() => updateConfirmed(false)}>
               編集
             </Button>
           ) : (
-            <Button variant="contained" color="secondary" onClick={() => setConfirmed(true)}>
+            <Button variant="contained" color="secondary" onClick={() => updateConfirmed(true)}>
               確定
             </Button>
           )}

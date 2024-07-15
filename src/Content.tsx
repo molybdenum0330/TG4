@@ -16,7 +16,7 @@ import ThemeSwitch from "./components/ThemeSwitch";
 import { TGEventPlayerListProvider } from "./context/PlayerListContext";
 import { useTGEventContext } from "./context/TGEventContext";
 import { useTGEventListContext } from "./context/TGEventListContext";
-import { createNewUncofirmedResult } from "./types/types";
+import { countPlayed, createNewUncofirmedResult } from "./types/types";
 
 const Content = () => {
     const [tgEventListDrawerOpen, setTGEventListDrawerOpen] = useState(false);
@@ -52,6 +52,12 @@ const Content = () => {
   
     const TGEventPanel = () => {
       const {tgEvent} = useTGEventContext();
+      const [toggle, setToggle] = useState(true);
+
+      const updateTGEventView = () => {
+        countPlayed(tgEvent)
+        setToggle(!toggle);
+      }
       
       const ResultPanel = () => {
         const [resultList, setResultList] = useState(tgEvent.results);
@@ -74,7 +80,7 @@ const Content = () => {
               </div>
             </Box>
               <DndProvider backend={HTML5Backend}>
-                {resultList.map((result) => <ResultBox key={result.id} result={result} />)}
+                {resultList.map((result) => <ResultBox key={result.id} result={result} updateTGEventView={updateTGEventView}/>)}
               </DndProvider>
           </Stack>
         );

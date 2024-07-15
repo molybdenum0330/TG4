@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardHeader, CardContent, Divider, IconButton, Menu, MenuItem, Stack } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import UndoIcon from '@mui/icons-material/Undo';
-import { Team, Player, ChildrenTypes, TeamHasTeams } from '../types/types';
+import { Team, Player, ChildrenTypes, TeamHasTeams, collectPlayers } from '../types/types';
 import TeamCard from './TeamCard';
 
 const TeamListCard = ({ resultId, team, updateView }: { resultId: string, team: Team, updateView: () => void }) => {
@@ -23,12 +23,6 @@ const TeamListCard = ({ resultId, team, updateView }: { resultId: string, team: 
     team.childrenType = ChildrenTypes.PLAYER;
     updateView();
     handleMenuClose();
-
-    function collectPlayers(team: Team): Player[] {
-      return team.childrenType === ChildrenTypes.TEAM
-        ? (team.children).flatMap((team) => collectPlayers(team))
-        : (team.children);
-    }
   };
 
   return (
