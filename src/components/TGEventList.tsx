@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useTGEventContext } from '../context/TGEventContext';
 import { Box, TextField, Button, List, ListItem, ListItemText, IconButton } from '@mui/material';
-import { TGEvent } from '../types/types';
+import { v4 as uuidv4 } from 'uuid';
+import { TGEvent, createNewTGEvent } from '../types/types';
 import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import { useTGEventListContext } from '../context/TGEventListContext';
@@ -13,14 +14,17 @@ export const TGEventList = () => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingName, setEditingName] = useState<string>('');
 
-  const addTGEvent = () => {
+  const craeteNewTGEvent = () => {
     if (newTGEventName.trim()) {
-      const newTGEvent = {id: tgEventList.length + 1, name: newTGEventName, playerList: [], results: [{id: 1, teams: [], remainedPlayers: [], confirmed: false}]} as TGEvent
-      setTGEventList([...tgEventList, newTGEvent]);
-      setNewTGEventName('');
-      setTGEvent(newTGEvent);
+      addTGEvent(createNewTGEvent(newTGEventName, []))
     }
   };
+
+  const addTGEvent = (newTGEvent: TGEvent) => {
+    setTGEventList([...tgEventList, newTGEvent]);
+    setNewTGEventName('');
+    setTGEvent(newTGEvent);
+  }
 
   const removeTGEvent = (index: number) => {
     const removedTGEvent = tgEventList[index];
@@ -28,13 +32,13 @@ export const TGEventList = () => {
     if (removedTGEvent.id === tgEvent.id && tgEventList.length > 1) {
       setTGEvent(tgEventList[index - 1]);
     } else if (removedTGEvent.id === tgEvent.id && tgEventList.length === 1) {
-      setTGEvent({id: 1, name: '新規イベント１', playerList: [], results: []});
+      addTGEvent(createNewTGEvent('新規イベント１', []));
     }
   };
 
   const copyTGEvent = (index: number) => {
     const tgEventToCopy = tgEventList[index];
-    const copiedTGEvent = { ...tgEventToCopy, id: tgEventList.length + 1, name: `${tgEventToCopy.name} (コピー)`, playerList: [...tgEventToCopy.playerList], results: [{id: 1, teams: [], remainedPlayers: [...tgEventToCopy.playerList], confirmed: false}] };
+    const copiedTGEvent = createNewTGEvent(`${tgEventToCopy.name} (コピー)`, [...tgEventToCopy.playerList]);
     setTGEventList([...tgEventList, copiedTGEvent]);
     setTGEvent(copiedTGEvent);
   };
@@ -60,7 +64,7 @@ export const TGEventList = () => {
         onChange={(e) => setNewTGEventName(e.target.value)}
         fullWidth
         />
-        <Button onClick={addTGEvent} variant="contained" color="primary" fullWidth sx={{ mt: 1 }}>
+        <Button onClick={craeteNewTGEvent} variant="contained" color="primary" fullWidth sx={{ mt: 1 }}>
         追加
         </Button>
         <List>

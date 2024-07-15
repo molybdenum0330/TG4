@@ -1,36 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Button, Grid, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { v4 as uuidv4 } from 'uuid';
 import { Player } from '../types/types';
 import { usePlayerListContext } from '../context/PlayerListContext';
 
 const PlayerTable = () => {
   const { playerList, setPlayerList } = usePlayerListContext();
-  const [editField, setEditField] = useState<{ id: number | null, field: string | null }>({ id: null, field: null });
+  const [editField, setEditField] = useState<{ id: string | null, field: string | null }>({ id: null, field: null });
   const [saveName, setSaveName] = useState('');
 
-  const handleNameChange = (id: number, name: string) => {
+  const handleNameChange = (id: string, name: string) => {
     setPlayerList(playerList.map(player => player.id === id ? { ...player, name } : player));
   };
 
-  const handlePlayedChange = (id: number, playedCount: number) => {
+  const handlePlayedChange = (id: string, playedCount: number) => {
     setPlayerList(playerList.map(player => player.id === id ? { ...player, playedCount } : player));
   };
 
   const addPlayer = () => {
     const newPlayer: Player = {
-      id: playerList.length ? playerList[playerList.length - 1].id + 1 : 1,
+      id: uuidv4(),
       name: 'プレイヤー' + (playerList.length + 1),
       playedCount: 0,
     };
     setPlayerList([...playerList, newPlayer]);
   };
 
-  const removePlayer = (id: number) => {
+  const removePlayer = (id: string) => {
     setPlayerList(playerList.filter(player => player.id !== id));
   };
 
-  const handleFocus = (id: number, field: string) => {
+  const handleFocus = (id: string, field: string) => {
     setEditField({ id, field });
   };
 
@@ -66,7 +67,6 @@ const PlayerTable = () => {
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
               <TableCell>プレイヤー名</TableCell>
               <TableCell>参加回数</TableCell>
               <TableCell>操作</TableCell>
@@ -75,7 +75,6 @@ const PlayerTable = () => {
           <TableBody>
             {playerList.map(player => (
               <TableRow key={player.id} style={{ height: '40px' }} id={`player-row-${player.id}`}>
-                <TableCell>{player.id}</TableCell>
                 <TableCell>
                   {editField.id === player.id && editField.field === 'name' ? (
                     <TextField
