@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Card, CardHeader, CardContent, Divider, IconButton, Menu, MenuItem, Stack } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import UndoIcon from '@mui/icons-material/Undo';
-import { Team, Player } from '../types/types';
+import { Team, Player, ChildrenTypes, TeamHasTeams } from '../types/types';
 import TeamCard from './TeamCard';
 
-const TeamListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispatch<React.SetStateAction<Team[]>> }) => {
+const TeamListCard = ({ resultId, team, updateView }: { resultId: string, team: Team, updateView: () => void }) => {
+  const teamHasTeams = team as TeamHasTeams;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -19,21 +20,21 @@ const TeamListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispatch
 
   const revert = () => {
     team.children = collectPlayers(team);
-    team.childrenType = 'Player';
-    setTeams((prev) => [...prev]);
+    team.childrenType = ChildrenTypes.PLAYER;
+    updateView();
     handleMenuClose();
 
     function collectPlayers(team: Team): Player[] {
-      return team.childrenType === 'Team'
-        ? (team.children as Team[]).flatMap((team) => collectPlayers(team))
-        : (team.children as Player[]);
+      return team.childrenType === ChildrenTypes.TEAM
+        ? (team.children).flatMap((team) => collectPlayers(team))
+        : (team.children);
     }
   };
 
   return (
     <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <CardHeader
-        title={team.name}
+        title={teamHasTeams.name}
         action={
           <>
             <IconButton aria-label="settings" onClick={handleMenuClick}>
@@ -57,8 +58,8 @@ const TeamListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispatch
       <CardContent sx={{ flex: 1 }}>
         <Stack direction="row" spacing={5}>
           {
-            (team.children as Team[]).map((subTeam: Team) => (
-              <TeamCard key={subTeam.id} team={subTeam as Team} />
+            teamHasTeams.children.map((subTeam: Team) => (
+              <TeamCard resultId={resultId} key={subTeam.id} team={subTeam} />
             ))
           }
         </Stack>

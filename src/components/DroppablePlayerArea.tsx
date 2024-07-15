@@ -2,11 +2,11 @@ import { DropTargetMonitor, useDrop } from "react-dnd";
 import { Player, PlayerDropItem, DroppableTypes } from "../types/types";
 import { Box, useTheme } from "@mui/material";
 
-export const DroppablePlayerArea = ({ children, onDrop, onHover }: { children: React.ReactNode; onDrop: (player: Player) => void; onHover: (player: Player, isOver: boolean) => void }) => {
+export const DroppablePlayerArea = ({dndId, children, onDrop, onHover }: { dndId: string; children: React.ReactNode; onDrop: (player: Player) => void; onHover: (player: Player, isOver: boolean) => void }) => {
   const theme = useTheme();
 
   const [{ isOver, canDrop, item }, drop] = useDrop(() => ({
-    accept: DroppableTypes.PLAYER,
+    accept: `${DroppableTypes.PLAYER}-${dndId}`,
     canDrop: () => true,
     drop: ({player, dropCallback}: PlayerDropItem) => {
       dropCallback(player);

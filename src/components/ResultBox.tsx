@@ -13,15 +13,13 @@ import PlayerCard from './PlayerCard';
 
 const ResultBox = ({ result }: { result: Result }) => {
   const [confirmed, setConfirmed] = useState(result.confirmed);
-  const [teams, setTeams] = useState<Team[]>(result.teams);
   const [remainedPlayers, setRemainedPlayers] = useState<Player[]>(result.remainedPlayers);
   const [previewPlayer, setPreviewPlayer] = useState<Player | null>(null);
 
   useEffect(() => {
-    result.teams = teams;
     result.remainedPlayers = remainedPlayers;
     result.confirmed = confirmed;
-  }, [teams, remainedPlayers, confirmed]);
+  }, [remainedPlayers, confirmed]);
 
   const addPlayer = (player: Player) => {
     setRemainedPlayers((prev) => sortPlayer([...prev, player]));
@@ -46,6 +44,7 @@ const ResultBox = ({ result }: { result: Result }) => {
 
   return (
     <DndProvider
+      key={result.id}
       backend={MultiBackend}
       options={{
         backends: [
@@ -63,11 +62,7 @@ const ResultBox = ({ result }: { result: Result }) => {
       <Card variant="outlined">
         <CardContent>
           <Stack spacing={2}>
-            {teams.map((team) => (
-              <Grid item xs key={team.id}>
-                <TeamCard team={team} />
-              </Grid>
-            ))}
+            <TeamCard resultId={result.id} team={result.team} />
             <Card variant="outlined">
               <CardHeader title="不参加" />
               <Divider />
@@ -77,12 +72,12 @@ const ResultBox = ({ result }: { result: Result }) => {
                   alignItems: 'center', // 子要素を中央に配置
                   justifyContent: 'center', // 子要素を中央に配置
                 }}>
-                <DroppablePlayerArea onDrop={addPlayer} onHover={onHoverPlayer}>
+                <DroppablePlayerArea dndId={result.id} onDrop={addPlayer} onHover={onHoverPlayer}>
                   <Stack spacing={2} direction="row" useFlexGap flexWrap="wrap">
                     {sortedPlayers.map(({player, isPreview}) => (
                       isPreview
-                        ? <div style={{opacity: 0.5}}><PlayerCard key={`${player.id}-preview`} player={player} /></div>
-                        : <DraggablePlayerCard key={player.id} player={player} dropCallback={removePlayer} />
+                        ? <div key={`${player.id}-preview`} style={{opacity: 0.5}}><PlayerCard player={player} /></div>
+                        : <DraggablePlayerCard dndId={result.id} key={player.id} player={player} dropCallback={removePlayer} />
                     ))}
                   </Stack>
                 </DroppablePlayerArea>

@@ -1,15 +1,19 @@
 import { useState } from 'react';
-import { Team } from '../types/types';
+import { ChildrenTypes, Team } from '../types/types';
 import PlayerListCard from './PlayerListCard';
 import TeamListCard from './TeamListCard';
 
-const TeamCard = ({ team }: { team: Team }) => {
-  const [teams, setTeams] = useState<Team[]>(team.childrenType === 'Team' ? team.children as Team[] : []);
+const TeamCard = ({resultId,  team }: { resultId: string, team: Team }) => {
+  const [toggle, setToggle] = useState(true);
 
-  return team.childrenType === 'Team' ? (
-    <TeamListCard team={team} setTeams={setTeams} />
+  const updateView = () => {
+    setToggle(!toggle);
+  }
+
+  return team.childrenType === ChildrenTypes.TEAM ? (
+    <TeamListCard resultId={resultId} team={team} updateView={updateView} />
   ) : (
-    <PlayerListCard team={team} setTeams={setTeams} />
+    <PlayerListCard resultId={resultId} team={team} updateView={updateView}  />
   );
 }
 

@@ -1,8 +1,10 @@
 import { useTheme, ThemeProvider } from "@emotion/react";
-import { createTheme, Drawer, Container, Grid, Stack, Typography, CssBaseline, Box, AppBar, Toolbar, IconButton } from "@mui/material";
+import { createTheme, Drawer, Container, Grid, Stack, Typography, CssBaseline, Box, AppBar, Toolbar, IconButton, Button } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { v4 as uuidv4 } from 'uuid';
+
 import PlayerTable from "./components/PlayerTable";
 import ResultBox from "./components/ResultBox";
 import { TGEventList } from "./components/TGEventList";
@@ -10,6 +12,7 @@ import ThemeSwitch from "./components/ThemeSwitch";
 import { TGEventPlayerListProvider } from "./context/PlayerListContext";
 import { useTGEventContext } from "./context/TGEventContext";
 import { useTGEventListContext } from "./context/TGEventListContext";
+import { createNewUncofirmedResult } from "./types/types";
 
 const Content = () => {
     const [tgEventListDrawerOpen, setTGEventListDrawerOpen] = useState(false);
@@ -46,6 +49,31 @@ const Content = () => {
     const TGEventPanel = () => {
       const {tgEvent} = useTGEventContext();
       
+      const ResultPanel = () => {
+        const [resultList, setResultList] = useState(tgEvent.results);
+        const createNewResult = () => {
+          setResultList([createNewUncofirmedResult(tgEvent.playerList), ...resultList]); 
+        };
+
+        useEffect(() => {
+          tgEvent.results = resultList;
+        }, [resultList]);
+
+        return (
+          <Stack direction="column" useFlexGap flexWrap="wrap">
+          <Box>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h4">{tgEvent.name}</Typography>
+              <Button variant="contained" color="primary" onClick={createNewResult}>
+                新しいチーム分けを作る
+              </Button>
+            </div>
+          </Box>
+          {resultList.map((result) => <ResultBox key={result.id} result={result} />)}
+        </Stack>
+        );
+      }
+
       return useMemo(() => (
         <TGEventPlayerListProvider tgEvent={tgEvent}>
           <Drawer anchor="right" open={playerListDrawerOpen} onClose={togglePlayerListDrawer(false)}>
@@ -54,10 +82,7 @@ const Content = () => {
           <Container>
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <Stack direction="column" useFlexGap flexWrap="wrap">
-                  <Typography variant="h4">{tgEvent.name}</Typography>
-                  {tgEvent.results.map((result) => <ResultBox result={result} />)}
-                </Stack>
+                <ResultPanel />
               </Grid>
             </Grid>
           </Container>

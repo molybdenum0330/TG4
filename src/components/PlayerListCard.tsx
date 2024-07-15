@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, Divider, IconButton, Menu, MenuItem, TextField, Stack } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { Player, Team, sortByName, sortPlayer } from '../types/types';
+import { ChildrenTypes, Player, Team, TeamHasPlayers, sortByName, sortPlayer } from '../types/types';
 import { v4 as uuidv4 } from 'uuid';
 import DraggablePlayerCard from './DraggablePlayerCard';
 import DroppablePlayerArea from './DroppablePlayerArea';
 import PlayerCard from './PlayerCard';
 
-const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispatch<React.SetStateAction<Team[]>> }) => {
+const PlayerListCard = ({resultId, team, updateView }: { resultId: string, team: Team, updateView: () => void }) => {
+  const teamHasPlayer = team as TeamHasPlayers;
   const [teamCount, setTeamCount] = useState<number>(2);
   const [playerCount, setPlayerCount] = useState<number>(4);
   const [previewPlayer, setPreviewPlayer] = useState<Player | null>(null);
@@ -24,22 +25,22 @@ const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispat
     setAnchorEl(null);
   };
 
-  const splitPlayers = (newTeamsFunc: (shuffledPlayers: Player[]) => Team[]) => {
-    const shuffledPlayers = [...team.children as Player[]].sort(() => Math.random() - 0.5);
+  const splitPlayers = (newTeamsFunc: (shuffledPlayers: Player[]) => TeamHasPlayers[]) => {
+    const shuffledPlayers = [...teamHasPlayer.children].sort(() => Math.random() - 0.5);
     team.children = newTeamsFunc(shuffledPlayers);
-    team.childrenType = 'Team';
-    setTeams((prev) => [...prev]);
+    team.childrenType = ChildrenTypes.TEAM;
+    updateView();
     handleMenuClose();
   }
 
   const splitByPlayerCount = () => {
     splitPlayers((shuffledPlayers) => {
-      const newTeams: Team[] = [];
+      const newTeams: TeamHasPlayers[] = [];
       shuffledPlayers.forEach((player, index) => {
         if (newTeams.length === 0 || newTeams[newTeams.length - 1].children.length >= playerCount) {
-          newTeams.push({ id: uuidv4(), name: `チーム${newTeams.length + 1}`, children: [] as Player[], childrenType: 'Player' });
+          newTeams.push({ id: uuidv4(), name: `チーム${newTeams.length + 1}`, children: [], childrenType: ChildrenTypes.PLAYER });
         }
-        newTeams[newTeams.length - 1].children = sortPlayer([...newTeams[newTeams.length - 1].children as Player[], player]);
+        newTeams[newTeams.length - 1].children = sortPlayer([...newTeams[newTeams.length - 1].children, player]);
       });
       return newTeams;
     })
@@ -47,26 +48,26 @@ const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispat
 
   const splitByTeamCount = () => {
     splitPlayers((shuffledPlayers) => {
-      const newTeams: Team[] = Array.from({ length: teamCount }, (_, index) => ({ id: uuidv4(), name: `チーム${index + 1}`, children: [] as Player[], childrenType: 'Player' }));
+      const newTeams: TeamHasPlayers[] = Array.from({ length: teamCount }, (_, index) => ({ id: uuidv4(), name: `チーム${index + 1}`, children: [], childrenType: ChildrenTypes.PLAYER }));
       shuffledPlayers.forEach((player, index) => {
-        (newTeams[index % teamCount].children as Player[]).push(player);
+        (newTeams[index % teamCount].children).push(player);
       });
 
-      newTeams.forEach((team) => {
-        team.children = sortPlayer(team.children as Player[]);
+      newTeams.forEach((newTeam) => {
+        newTeam.children = sortPlayer(newTeam.children);
       });
       return newTeams;
     });
   };
 
   const addPlayer = (player: Player) => {
-    team.children = sortPlayer([...team.children as Player[], player]);
-    setTeams((prev) => [...prev]);
+    team.children = sortPlayer([...teamHasPlayer.children, player]);
+    updateView();
   };
 
   const removePlayer = (player: Player) => {
-    team.children = (team.children as Player[]).filter((p) => p.id !== player.id);
-    setTeams((prev) => [...prev]);
+    team.children = teamHasPlayer.children.filter((p) => p.id !== player.id);
+    updateView();
   };
 
   const onHoverPlayer = (player: Player, isOver: boolean) => {
@@ -77,17 +78,17 @@ const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispat
     }
   };
 
-  const players = (team.children as Player[]).map(p => ({ player: p, isPreview: false }))
-  previewPlayer && !(team.children as Player[]).includes(previewPlayer) && players.push({ player: previewPlayer, isPreview: true })
+  const players = teamHasPlayer.children.map(p => ({ player: p, isPreview: false }))
+  previewPlayer && !teamHasPlayer.children.includes(previewPlayer) && players.push({ player: previewPlayer, isPreview: true })
 
   const sortedPlayers = sortByName(players, (p) => p.player.name);
 
   return (
     <Card variant="outlined" sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <CardHeader
-        title={team.name}
+        title={teamHasPlayer.name}
         action={
-          team.children.length === 1 ? null :
+          teamHasPlayer.children.length === 1 ? null :
           <>
             <IconButton aria-label="settings" onClick={handleMenuClick}>
               <MoreVertIcon />
@@ -136,7 +137,7 @@ const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispat
           justifyContent: 'center', // 子要素を中央に配置
         }}
       >
-        <DroppablePlayerArea onDrop={addPlayer} onHover={onHoverPlayer}>
+        <DroppablePlayerArea dndId={resultId} onDrop={addPlayer} onHover={onHoverPlayer}>
           <Stack
             direction="row" 
             spacing={2}
@@ -149,7 +150,7 @@ const PlayerListCard = ({ team, setTeams }: { team: Team, setTeams: React.Dispat
               sortedPlayers.map(({player, isPreview}) => (
                 isPreview
                 ? <div style={{opacity: 0.5}}><PlayerCard key={`${player.id}-preview`} player={player} /></div>
-                : <DraggablePlayerCard key={player.id} player={player} dropCallback={removePlayer} />
+                : <DraggablePlayerCard dndId={resultId} key={player.id} player={player} dropCallback={removePlayer} />
               ))
             }
           </Stack>
