@@ -1,3 +1,4 @@
+import { AddToDriveRounded } from '@mui/icons-material';
 import { v4 as uuidv4 } from 'uuid';
 import { resourceLimits } from 'worker_threads';
 
@@ -63,6 +64,33 @@ export const collectPlayers = (team: Team): Player[] =>
   team.childrenType === ChildrenTypes.TEAM
     ? (team.children).flatMap((team) => collectPlayers(team))
     : (team.children);
+
+export const syncPlayerListAndResults = (tgEvent: TGEvent) => {
+  removeDeletedPlayersFromResults(tgEvent)
+  addNewPlayer(tgEvent)
+}
+
+const removeDeletedPlayersFromResults = (tgEvent: TGEvent) => {
+  tgEvent.results.forEach(r => {
+    removePlayerDoesNotExist(r.team, tgEvent.playerList)
+    r.remainedPlayers = r.remainedPlayers.filter(p => tgEvent.playerList.some(p2 => p2 === p))
+})
+}
+
+const removePlayerDoesNotExist = (team: Team, playerList: Player[]) => {
+  team.childrenType === ChildrenTypes.PLAYER
+     ? team.children = team.children.filter(p => playerList.some(p2 => p2 === p))
+     : team.children.forEach(t => removePlayerDoesNotExist(t, playerList))
+}
+
+const addNewPlayer = (tgEvent: TGEvent) => {
+  // TODO
+  tgEvent.results.forEach(r => {
+    const existsPlayers = [...collectPlayers(r.team), ...r.remainedPlayers]
+    const newPlayers = [...tgEvent.playerList.filter(p => !existsPlayers.some(p2 => p2 === p))]
+    r.remainedPlayers.push(...newPlayers)
+  })
+}
 
 export const countPlayed = (tgEvent: TGEvent) => {
   const players = tgEvent.playerList

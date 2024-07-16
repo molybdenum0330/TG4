@@ -4,10 +4,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { v4 as uuidv4 } from 'uuid';
 import { Player } from '../types/types';
-import { usePlayerListContext } from '../context/PlayerListContext';
+import { useTGEventPlayerListContext } from '../context/TGEventPlayerListContext';
 
-const PlayerTable = ({ updateTGEventView }: { updateTGEventView: () => void }) => {
-  const { playerList, setPlayerList } = usePlayerListContext();
+const PlayerTable = () => {
+  const { playerList, setPlayerList } = useTGEventPlayerListContext();
   const [editName, setEditName] = useState<Player | null>(null);
   const [editPlayerName, setEditPlayerName] = useState<string>("");
   const [playerName, setPlayerName] = useState('');
@@ -20,7 +20,6 @@ const PlayerTable = ({ updateTGEventView }: { updateTGEventView: () => void }) =
     };
     setPlayerList([...playerList, newPlayer]);
     setPlayerName('')
-    updateTGEventView()
   };
 
   const removePlayer = (player: Player) => {
@@ -30,7 +29,6 @@ const PlayerTable = ({ updateTGEventView }: { updateTGEventView: () => void }) =
       }
     }
     setPlayerList(playerList.filter(p => p !== player));
-    updateTGEventView();
   };
 
   const handleFocus = (player: Player) => {
@@ -43,7 +41,6 @@ const PlayerTable = ({ updateTGEventView }: { updateTGEventView: () => void }) =
       editName.name = editPlayerName
     }
     setEditName(null);
-    updateTGEventView()
   };
 
   const playerTableContent = (

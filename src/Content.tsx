@@ -13,14 +13,13 @@ import PlayerTable from "./components/PlayerTable";
 import ResultBox from "./components/ResultBox";
 import { TGEventList } from "./components/TGEventList";
 import ThemeSwitch from "./components/ThemeSwitch";
-import { TGEventPlayerListProvider } from "./context/PlayerListContext";
+import { TGEventPlayerListProvider, useTGEventPlayerListContext } from "./context/TGEventPlayerListContext";
 import { useTGEventContext } from "./context/TGEventContext";
 import { useTGEventListContext } from "./context/TGEventListContext";
 import { countPlayed, createNewUncofirmedResult } from "./types/types";
 
 const Content = () => {
     const [tgEventListDrawerOpen, setTGEventListDrawerOpen] = useState(false);
-    const [playerListDrawerOpen, setPlayerListDrawerOpen] = useState(false);
     const [darkMode, setDarkMode] = useState(false);
   
     const theme = useTheme();
@@ -28,10 +27,6 @@ const Content = () => {
   
     const toggleTGEventListDrawer = (open: boolean) => () => {
       setTGEventListDrawerOpen(open);
-    };
-  
-    const togglePlayerListDrawer = (open: boolean) => () => {
-      setPlayerListDrawerOpen(open);
     };
   
     const handleThemeChange = () => {
@@ -52,13 +47,12 @@ const Content = () => {
   
     const TGEventPanel = () => {
       const {tgEvent} = useTGEventContext();
-      const [toggle, setToggle] = useState(true);
-
-      const updateTGEventView = () => {
-        countPlayed(tgEvent)
+      const [toggle, setToggle] = useState(false);
+      const updateTGView = () => {
         setToggle(!toggle);
-      }
-      
+      };
+
+
       const ResultPanel = () => {
         const [resultList, setResultList] = useState(tgEvent.results);
         const createNewResult = () => {
@@ -80,14 +74,14 @@ const Content = () => {
               </div>
             </Box>
             <DndProvider backend={HTML5Backend}>
-              {resultList.map((result) => <ResultBox key={result.id} result={result} updateTGEventView={updateTGEventView}/>)}
+              {resultList.map((result) => <ResultBox key={result.id} result={result} />)}
             </DndProvider>
           </Stack>
         );
       }
 
       return (
-        <TGEventPlayerListProvider tgEvent={tgEvent}>
+        <TGEventPlayerListProvider tgEvent={tgEvent} updateTGView={updateTGView}>
           <Container>
             <Grid container spacing={3}>
               <Grid item xs={12}>
@@ -96,7 +90,7 @@ const Content = () => {
             </Grid>
           </Container>
           <Box sx={{ width: 300, right: 10, position: 'fixed', top: 100, height: '80%'}}>
-            <PlayerTable updateTGEventView={updateTGEventView}/>
+            <PlayerTable />
           </Box>
         </TGEventPlayerListProvider>);
     };

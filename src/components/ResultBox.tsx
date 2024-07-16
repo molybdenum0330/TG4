@@ -5,9 +5,11 @@ import TeamCard from './TeamCard';
 import DraggablePlayerCard from './DraggablePlayerCard';
 import DroppablePlayerArea from './DroppablePlayerArea';
 import PlayerCard from './PlayerCard';
+import { useTGEventPlayerListContext } from '../context/TGEventPlayerListContext';
 
 
-const ResultBox = ({ result, updateTGEventView }: { result: Result, updateTGEventView: () => void }) => {
+const ResultBox = ({ result }: { result: Result }) => {
+  const { observeChanged } = useTGEventPlayerListContext();
   const [confirmed, setConfirmed] = useState(result.confirmed);
   const [remainedPlayers, setRemainedPlayers] = useState<Player[]>(result.remainedPlayers);
   const [previewPlayer, setPreviewPlayer] = useState<Player | null>(null);
@@ -28,7 +30,7 @@ const ResultBox = ({ result, updateTGEventView }: { result: Result, updateTGEven
   const updateConfirmed = (confirmed: boolean) => {
     result.confirmed = confirmed
     setConfirmed(confirmed)
-    updateTGEventView()
+    observeChanged()
   };
 
   const onHoverPlayer = (player: Player, isOver: boolean) => {
