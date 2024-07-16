@@ -8,23 +8,26 @@ import PlayerCard from './PlayerCard';
 import { useTGEventPlayerListContext } from '../context/TGEventPlayerListContext';
 
 
-const ResultBox = ({ result }: { result: Result }) => {
+const ResultBox = ({ result, onRemoveClick }: { result: Result, onRemoveClick: () => void }) => {
   const { observeChanged } = useTGEventPlayerListContext();
   const [confirmed, setConfirmed] = useState(result.confirmed);
   const [remainedPlayers, setRemainedPlayers] = useState<Player[]>(result.remainedPlayers);
   const [previewPlayer, setPreviewPlayer] = useState<Player | null>(null);
 
-  useEffect(() => {
-    result.remainedPlayers = remainedPlayers;
-    result.confirmed = confirmed;
-  }, [remainedPlayers, confirmed]);
-
   const addPlayer = (player: Player) => {
-    setRemainedPlayers((prev) => sortPlayer([...prev, player]));
+    setRemainedPlayers((prev) => {
+      const players = sortPlayer([...prev, player])
+      result.remainedPlayers = players
+      return players;
+    });
   };
 
   const removePlayer = (player: Player) => {
-    setRemainedPlayers((prev) => prev.filter((p) => p.id !== player.id));
+    setRemainedPlayers((prev) => {
+      const players = prev.filter((p) => p !== player)
+      result.remainedPlayers = players
+      return players;
+    });
   };
 
   const updateConfirmed = (confirmed: boolean) => {
@@ -71,15 +74,20 @@ const ResultBox = ({ result }: { result: Result }) => {
               </DroppablePlayerArea>
             </CardContent>
           </Card>
-          {confirmed ? (
-            <Button variant="contained" color="secondary" onClick={() => updateConfirmed(false)}>
-              編集
+          <Stack direction="row" spacing={2} flexGrow={1}>
+            {confirmed ? (
+              <Button variant="contained" color="secondary" onClick={() => updateConfirmed(false)}>
+                編集
+              </Button>
+            ) : (
+              <Button variant="contained" color="secondary" onClick={() => updateConfirmed(true)}>
+                確定
+              </Button>
+            )}
+            <Button variant="contained" color="error" onClick={onRemoveClick}>
+              削除
             </Button>
-          ) : (
-            <Button variant="contained" color="secondary" onClick={() => updateConfirmed(true)}>
-              確定
-            </Button>
-          )}
+          </Stack>
         </Stack>
       </CardContent>
     </Card>

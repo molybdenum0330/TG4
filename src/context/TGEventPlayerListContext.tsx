@@ -25,8 +25,8 @@ export const useTGEventPlayerListContext = () => {
 
 export const TGEventPlayerListProvider = ({ tgEvent, updateTGView, children }: PropsWithChildren<{ tgEvent: TGEvent, updateTGView: () => void }>) =>  {
   const applyPlayerList = () => {
-    syncPlayerListAndResults(tgEvent)
-    countPlayed(tgEvent)
+    syncPlayerListAndResults(tgEvent);
+    countPlayed(tgEvent);
   }
 
   const [playerList, setPlayerList] = useState<Player[]>(tgEvent.playerList);

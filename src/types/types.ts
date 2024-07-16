@@ -29,6 +29,14 @@ export interface Result {
   confirmed: boolean;
 }
 
+
+export interface ResultToSave {
+  id: string;
+  team: Team;
+  remainedPlayerIds: string[];
+  confirmed: boolean;
+}
+
 export interface BaseTeam {
   id: string;
   name: string;
@@ -43,6 +51,11 @@ export interface TeamHasTeams extends BaseTeam {
 export interface TeamHasPlayers extends BaseTeam {
   childrenType: typeof ChildrenTypes.PLAYER;
   children: Player[];
+}
+
+export interface TeamHasPlayersToSave extends BaseTeam {
+  childrenType: typeof ChildrenTypes.PLAYER;
+  children: string[];
 }
 
 export type Team = TeamHasTeams | TeamHasPlayers;
