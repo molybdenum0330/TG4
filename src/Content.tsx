@@ -175,7 +175,7 @@ const Content = () => {
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              TG4Event
+              TG4
             </Typography>
             <ThemeSwitch darkMode={darkMode} handleThemeChange={handleThemeChange} />
           </Toolbar>
