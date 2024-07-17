@@ -4,9 +4,11 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import UndoIcon from '@mui/icons-material/Undo';
 import { Team, Player, ChildrenTypes, TeamHasTeams, collectPlayers } from '../types/types';
 import TeamCard from './TeamCard';
+import { useLockedContext } from '../context/LockContext';
 
 const TeamListCard = ({ resultId, team, updateView }: { resultId: string, team: Team, updateView: () => void }) => {
   const teamHasTeams = team as TeamHasTeams;
+  const { locked } = useLockedContext();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -29,7 +31,7 @@ const TeamListCard = ({ resultId, team, updateView }: { resultId: string, team: 
     <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <CardHeader
         title={teamHasTeams.name}
-        action={
+        action={locked ? null :
           <>
             <IconButton aria-label="settings" onClick={handleMenuClick}>
               <MoreVertIcon />

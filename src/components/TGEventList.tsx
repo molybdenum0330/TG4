@@ -28,11 +28,13 @@ export const TGEventList = () => {
 
   const removeTGEvent = (index: number) => {
     const removedTGEvent = tgEventList[index];
-    setTGEventList(tgEventList.filter((_, i) => i !== index));
-    if (removedTGEvent.id === tgEvent.id && tgEventList.length > 1) {
+    setTGEventList(tgEventList.filter((e) => e !== removedTGEvent));
+    if (removedTGEvent === tgEvent && tgEventList.length > 1) {
       setTGEvent(tgEventList[index - 1]);
-    } else if (removedTGEvent.id === tgEvent.id && tgEventList.length === 1) {
-      addTGEvent(createNewTGEvent('新規イベント１', []));
+    } else if (removedTGEvent === tgEvent && tgEventList.length === 1) {
+      const newTGEvent = createNewTGEvent('新規イベント１', []); 
+      setTGEventList([newTGEvent]);
+      setTGEvent(newTGEvent);
     }
   };
 

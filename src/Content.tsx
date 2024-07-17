@@ -3,7 +3,7 @@ import { createTheme, Drawer, Container, Grid, Stack, Typography, CssBaseline, B
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleIcon from '@mui/icons-material/People';
 import AddIcon from '@mui/icons-material/Add';
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { MultiBackend, TouchTransition } from 'react-dnd-multi-backend';
@@ -19,6 +19,8 @@ import { useTGEventListContext } from "./context/TGEventListContext";
 import { Result, countPlayed, createNewUncofirmedResult } from "./types/types";
 import { save as saveTheme, restore as restoreTheme } from './storage/theme';
 import { save as saveTGList } from './storage/tgList';
+import { LockedProvider } from "./context/LockContext";
+import ResultList from "./components/ResultList";
 
 const Content = () => {
   const [tgEventListDrawerOpen, setTGEventListDrawerOpen] = useState(false);
@@ -51,17 +53,34 @@ const Content = () => {
   const TGEventPanel = () => {
     const { tgEvent } = useTGEventContext();
     const [toggle, setToggle] = useState(false);
+
+
     const updateTGView = () => {
       setToggle(!toggle);
     };
 
-
     const ResultPanel = () => {
       const { observeChanged } = useTGEventPlayerListContext();
       const [resultList, setResultList] = useState(tgEvent.results);
+      const resultRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+      const scrollToResult = (result: Result) => {
+        const resultElement = resultRefs.current[result.id];
+        if (resultElement) {
+          const offset = 100; // オフセット値を指定
+          const elementPosition = resultElement.getBoundingClientRect().top + window.pageYOffset;
+          const offsetPosition = elementPosition - offset;
+      
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      };
+
       const createNewResult = () => {
         setResultList((prev) => {
-          const newResults = [createNewUncofirmedResult(tgEvent.playerList), ...prev];
+          const newResults = [createNewUncofirmedResult(`${prev.length + 1}回目`, tgEvent.playerList), ...prev];
           tgEvent.results = newResults;
           return newResults;
         });
@@ -69,6 +88,9 @@ const Content = () => {
       };
 
       const removeResult = (result: Result) => {
+        if (result.confirmed && !confirm('確定した結果を削除すると元に戻せません。よろしいですか？')) {
+          return;
+        }
         setResultList((prev) => {
           const newResults = prev.filter((r) => r !== result);
           tgEvent.results = newResults;
@@ -78,19 +100,26 @@ const Content = () => {
       };
 
       return (
-        <Stack direction="column" useFlexGap flexWrap="wrap" gap={2}>
-          <Box>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          <Box display="flex"  style={{ position: 'fixed', left: 50, top: 100, padding: '10px' }}>
+            <ResultList results={resultList} onResultClick={scrollToResult} />
+          </Box>
+          <Stack direction="column" useFlexGap flexWrap="wrap" gap={2}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="h4">{tgEvent.name}</Typography>
               <IconButton onClick={createNewResult}>
                 <AddIcon />
               </IconButton>
-            </div>
-          </Box>
-          <DndProvider backend={HTML5Backend}>
-            {resultList.map((result) => <ResultBox key={result.id} result={result} onRemoveClick={() => removeResult(result)} />)}
-          </DndProvider>
-        </Stack>
+            </Box>
+            <DndProvider backend={HTML5Backend}>
+              {resultList.map((result) => (
+                <LockedProvider locked={result.confirmed}>
+                  <ResultBox ref={el => (resultRefs.current[result.id] = el)} key={result.id} result={result} onRemoveClick={() => removeResult(result)} />
+                </LockedProvider>
+              ))}
+            </DndProvider>
+          </Stack>
+        </Box>
       );
     }
 
@@ -116,9 +145,9 @@ const Content = () => {
       const handleBeforeUnload = (event: BeforeUnloadEvent) => {
         saveTGList(tgEventList);
       };
-  
+
       window.addEventListener('beforeunload', handleBeforeUnload);
-  
+
       return () => {
         window.removeEventListener('beforeunload', handleBeforeUnload);
       };

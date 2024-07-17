@@ -5,9 +5,10 @@ import AddIcon from '@mui/icons-material/Add';
 import { v4 as uuidv4 } from 'uuid';
 import { Player } from '../types/types';
 import { useTGEventPlayerListContext } from '../context/TGEventPlayerListContext';
+import { Edit } from '@mui/icons-material';
 
 const PlayerTable = () => {
-  const { playerList, setPlayerList } = useTGEventPlayerListContext();
+  const { playerList, setPlayerList, observeChanged } = useTGEventPlayerListContext();
   const [editName, setEditName] = useState<Player | null>(null);
   const [editPlayerName, setEditPlayerName] = useState<string>("");
   const [playerName, setPlayerName] = useState('');
@@ -41,6 +42,7 @@ const PlayerTable = () => {
       editName.name = editPlayerName
     }
     setEditName(null);
+    observeChanged();
   };
 
   const playerTableContent = (
@@ -77,10 +79,9 @@ const PlayerTable = () => {
                   ) : (
                     <span
                       id={`edit-player-name-${player.id}`}
-                      onClick={() => handleFocus(player)}
                       style={{ color: player.name ? 'inherit' : 'rgba(0, 0, 0, 0.54)' }}
                     >
-                      {player.name || 'クリックして編集'}
+                      {player.name || '未設定'}
                     </span>
                   )}
                 </TableCell>
@@ -88,9 +89,14 @@ const PlayerTable = () => {
                   {player.playedCount}
                 </TableCell>
                 <TableCell>
-                  <IconButton id={`delete-player-${player.id}`} color="error" onClick={() => removePlayer(player)} size="small">
-                    <DeleteIcon />
-                  </IconButton>
+                  <Stack direction="row" spacing={1}>
+                    <IconButton id={`edit-player-${player.id}`} onClick={() => handleFocus(player)} size="small">
+                      <Edit fontSize="small" />
+                    </IconButton>
+                    <IconButton id={`delete-player-${player.id}`} color="error" onClick={() => removePlayer(player)} size="small">
+                      <DeleteIcon />
+                    </IconButton>
+                  </Stack>
                 </TableCell>
               </TableRow>
             ))}

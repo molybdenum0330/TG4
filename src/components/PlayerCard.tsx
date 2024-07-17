@@ -9,14 +9,7 @@ const PlayerCard = ({ player }: { player: Player }) => (
     height: '100px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'grab', // ホバー時のカーソル
-    '&:hover': {
-      cursor: 'pointer', // ホバー時のカーソル
-    },
-    '&:active': {
-      cursor: 'grabbing', // ドラッグ時のカーソル
-    }, 
+    justifyContent: 'center'
   }}>
     <Typography variant="h4">{player.name}</Typography>
   </Card>

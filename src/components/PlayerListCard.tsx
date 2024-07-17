@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardContent, Divider, IconButton, Menu, MenuItem, TextField, Stack } from '@mui/material';
+import { Card, CardHeader, CardContent, Divider, IconButton, Menu, MenuItem, TextField, Stack, Box } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { ChildrenTypes, Player, Team, TeamHasPlayers, sortByName, sortPlayer } from '../types/types';
@@ -7,9 +7,11 @@ import { v4 as uuidv4 } from 'uuid';
 import DraggablePlayerCard from './DraggablePlayerCard';
 import DroppablePlayerArea from './DroppablePlayerArea';
 import PlayerCard from './PlayerCard';
+import { useLockedContext } from '../context/LockContext';
 
 const PlayerListCard = ({resultId, team, updateView }: { resultId: string, team: Team, updateView: () => void }) => {
   const teamHasPlayer = team as TeamHasPlayers;
+  const { locked } = useLockedContext();
   const [teamCount, setTeamCount] = useState<number>(2);
   const [playerCount, setPlayerCount] = useState<number>(4);
   const [previewPlayer, setPreviewPlayer] = useState<Player | null>(null);
@@ -88,7 +90,7 @@ const PlayerListCard = ({resultId, team, updateView }: { resultId: string, team:
       <CardHeader
         title={teamHasPlayer.name}
         action={
-          teamHasPlayer.children.length === 1 ? null :
+          locked ? null :
           <>
             <IconButton aria-label="settings" onClick={handleMenuClick}>
               <MoreVertIcon />
@@ -137,24 +139,42 @@ const PlayerListCard = ({resultId, team, updateView }: { resultId: string, team:
           justifyContent: 'center', // 子要素を中央に配置
         }}
       >
-        <DroppablePlayerArea dndId={resultId} onDrop={addPlayer} onHover={onHoverPlayer}>
-          <Stack
-            direction="row" 
-            spacing={2}
-            flexWrap="wrap"
-            justifyContent="center"
-            alignItems="center"
-            useFlexGap
-          >
-            {
-              sortedPlayers.map(({player, isPreview}) => (
-                isPreview
-                ? <div style={{opacity: 0.5}}><PlayerCard key={`${player.id}-preview`} player={player} /></div>
-                : <DraggablePlayerCard dndId={resultId} key={player.id} player={player} dropCallback={removePlayer} />
-              ))
-            }
-          </Stack>
-        </DroppablePlayerArea>
+        {locked
+          ? <Box
+              sx={{
+                padding: '16px',
+                flexGrow: 1, // 親のflexコンテナ内でエリアいっぱいに広げる
+                boxSizing: 'border-box', // paddingを含めてサイズを計算
+              }}>
+              <Stack
+                direction="row" 
+                spacing={2}
+                flexWrap="wrap"
+                justifyContent="center"
+                alignItems="center"
+                useFlexGap>
+                {sortPlayer(teamHasPlayer.children).map(p => <Box key={p.id}><PlayerCard player={p} /></Box>)}
+              </Stack>
+            </Box>
+          : <DroppablePlayerArea dndId={resultId} onDrop={addPlayer} onHover={onHoverPlayer}>
+              <Stack
+                direction="row" 
+                spacing={2}
+                flexWrap="wrap"
+                justifyContent="center"
+                alignItems="center"
+                useFlexGap
+              >
+                {
+                  sortedPlayers.map(({player, isPreview}) => (
+                    isPreview
+                    ? <Box style={{opacity: 0.5}}><PlayerCard key={`${player.id}-preview`} player={player} /></Box>
+                    : <DraggablePlayerCard dndId={resultId} key={player.id} player={player} dropCallback={removePlayer} />
+                  ))
+                }
+              </Stack>
+            </DroppablePlayerArea>
+}
       </CardContent>
     </Card>
   );

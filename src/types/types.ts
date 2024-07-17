@@ -24,6 +24,7 @@ export interface Player {
 
 export interface Result {
   id: string;
+  name: string;
   team: Team;
   remainedPlayers: Player[];
   confirmed: boolean;
@@ -70,8 +71,8 @@ export type PlayerDropItem = {
   dropCallback: (player: Player) => void
 }
 
-export const createNewTGEvent = (name: string, playerList: Player[]) => ({id: uuidv4(), name: name, playerList: playerList, results: [createNewUncofirmedResult(playerList)]});
-export const createNewUncofirmedResult = (playerList: Player[]) => ({id: uuidv4(), team: createParticipatingTeam(playerList), remainedPlayers: [], confirmed: false});
+export const createNewTGEvent = (name: string, playerList: Player[]) => ({id: uuidv4(), name: name, playerList: playerList, results: [createNewUncofirmedResult("1回目",playerList)]});
+export const createNewUncofirmedResult = (name: string, playerList: Player[]) => ({id: uuidv4(), name, team: createParticipatingTeam(playerList), remainedPlayers: [], confirmed: false});
 const createParticipatingTeam = (playerList: Player[]): TeamHasPlayers => ({id: uuidv4(), name: '参加', children: playerList, childrenType: ChildrenTypes.PLAYER});
 export const collectPlayers = (team: Team): Player[] =>
   team.childrenType === ChildrenTypes.TEAM

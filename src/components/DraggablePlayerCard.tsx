@@ -1,6 +1,7 @@
 import { useDrag } from "react-dnd";
 import { PlayerDropItem, DroppableTypes } from "../types/types";
 import PlayerCard from "./PlayerCard";
+import { Box } from "@mui/material";
 
 const DraggablePlayerCard = ({ dndId, player, dropCallback }: PlayerDropItem) => {
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -12,9 +13,20 @@ const DraggablePlayerCard = ({ dndId, player, dropCallback }: PlayerDropItem) =>
   }));
 
   return (
-    <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }} >
+    <Box ref={drag} 
+      sx={{
+        opacity: isDragging ? 0.5 : 1,
+        cursor: 'grab', // ホバー時のカーソル
+        '&:hover': {
+          cursor: 'pointer', // ホバー時のカーソル
+        },
+        '&:active': {
+          cursor: 'grabbing', // ドラッグ時のカーソル
+        }, 
+      }}
+    >
       <PlayerCard player={player} />
-    </div>
+    </Box>
   );
 }
 

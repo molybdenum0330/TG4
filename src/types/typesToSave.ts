@@ -14,6 +14,7 @@ export interface TGEventToSave {
 
   export interface ResultToSave {
     id: string;
+    name: string;
     team: TeamToSave;
     remainedPlayerIds: string[];
     confirmed: boolean;
